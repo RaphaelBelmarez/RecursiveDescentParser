@@ -1,64 +1,59 @@
-#include <fstream>
 #include <iostream>
+#include <string>
+#include <unordered_map>
 #include <unordered_set>
-#include <vector>
-
-#ifndef ParserH
-#define ParserH
+#ifndef Parser
 
 using namespace std;
 
 class Tokens {
 public:
-  Tokens();
-
-  enum Type {
-    OPERATOR,
-    INTEGER,
-    IDENTIFIER,
-    END_OF_FILE,
-    RESERVED_WORD,
-    ASSIGNMENT
-  };
+  enum TokenType { OPERATOR };
 
   struct Token {
-    Type type;
+    TokenType type;
     string value;
     int line;
   };
-
-  vector<Token> tokens = {};
-};
-
-class Parser {
-public:
-  int currentIndex;
-  unordered_set<string> declaredVariables;
-  unordered_set<string> reservedWords;
-
-  void expectToken(string expectedValue);
-  void checkDeclaredVariable(string variableName, int line);
-  Tokens::Token currentToken();
-  void scanFile(const string &filename);
-  void parseFile();
-  void parseProgram();
-  void parseVariableList();
-  void parseDeclaration();
-  void parseDeclarations();
-  void parseInput();
-  void parseOutput();
-  void parseAssignment();
-  void parseComparison();
-  void parseStatement();
-  void parseIfStatement();
-  void parseWhileStatement();
-  void parseStatements();
-  void parseFactor();
-  void parseTerm();
-  void parseExpression();
 };
 class Parsing {
 public:
-};
+  Tokens::Token currentToken;
+  int index;
+  int line;
 
-#endif // ParserH
+  void program();
+  void decl_sec();
+  void decl();
+  void id_list();
+  void id();
+  void stmt_sec();
+  void stmt();
+  void assign();
+  void ifstmt();
+  void whilestmt();
+  void input();
+  void output();
+  void expr();
+  void factor();
+  void operand();
+  void num();
+  void comp();
+  void type();
+
+  void getToken(string line, int index);
+
+protected:
+  unordered_set<string> reserved_words = {"program", "begin", "end",   "if",
+                                          "then",    "else",  "input", "output",
+                                          "int",     "while", "loop"};
+  unordered_map<string, int> vars;
+};
+class Scanner : public Parsing {
+public:
+  void scanFile();
+  void scanLine(string line);
+  int index;
+  Tokens::Token *currTok = &currentToken;
+};
+#endif // !Parser
