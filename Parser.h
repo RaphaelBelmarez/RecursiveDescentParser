@@ -1,37 +1,59 @@
 #include <iostream>
-#include <fstream>
-#include <vector>
-
-#include "Parser.cpp"
-
-#IFNDEF ParserH 
-#DEFINE ParserH
+#include <string>
+#include <unordered_map>
+#include <unordered_set>
+#ifndef Parser
 
 using namespace std;
 
-class Token{
-  public:
-    enum TokenType{
-      OPERATOR,
-      INTEGER,
-      IDENTIFIER,
-      END_OF_FILE,
-      RESERVED_WORD,
-      ASSIGNMENT
-};
+class Tokens {
+public:
+  enum TokenType { OPERATOR };
 
-struct Token{
-  TokenType type;
-  string value;
+  struct Token {
+    TokenType type;
+    string value;
+    int line;
+  };
+};
+class Parsing {
+public:
+  Tokens::Token currentToken;
+  int index;
   int line;
+
+  void program();
+  void decl_sec();
+  void decl();
+  void id_list();
+  void id();
+  void stmt_sec();
+  void stmt();
+  void assign();
+  void ifstmt();
+  void whilestmt();
+  void input();
+  void output();
+  void expr();
+  void factor();
+  void operand();
+  void num();
+  void comp();
+  void type();
+
+  void getToken(string line, int index);
+
+protected:
+  unordered_set<string> reserved_words = {"program", "begin", "end",   "if",
+                                          "then",    "else",  "input", "output",
+                                          "int",     "while", "loop"};
+  unordered_map<string, int> vars;
 };
-
-vector<Token> tokens;
-
+class Scanner : public Parsing {
+public:
+  void scanFile();
+  void scanLine(string line);
+  int index;
+  Tokens::Token *currTok = &currentToken;
 };
-
-int currentIndex;
-unordered_set<string> declaredVariables;
-unordered_set<string> reservedWords;
-
-#endif // ParserH
+#endif // !Parser
