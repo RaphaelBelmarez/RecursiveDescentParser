@@ -50,7 +50,7 @@ public:
   void expectedType(const string &type);
 
   size_t index;
-  int lineIndex;
+  int lineIndex = 1;
 
   string line;
   string file;

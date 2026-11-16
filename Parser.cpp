@@ -19,11 +19,10 @@ void Parsing::scanFile(string text) {
   if (currentToken.value == "program") {
     program();
   }
-  exit(-1);
+  exit(0);
 };
 
 Tokens::Token Parsing::getToken() {
-  cout << "gettoken" << endl;
   Tokens::Token tok;
   string type;
   size_t i = index;
@@ -33,10 +32,10 @@ Tokens::Token Parsing::getToken() {
     }
     i++;
   }
-
+  index = i;
   if (i >= file.size()) {
     currentToken.type = Tokens::END;
-    currentToken.value = "";
+    currentToken.value = "end";
     currentToken.line = lineIndex;
     index = i;
     return tok;
@@ -68,7 +67,7 @@ Tokens::Token Parsing::getToken() {
 
   // NUM
   if (isdigit(static_cast<unsigned char>(c))) {
-    int numDig;
+    int numDig = 0;
     y = i;
     while (y < file.size() && isdigit(static_cast<unsigned char>(file[y]))) {
       y++;
@@ -104,6 +103,7 @@ Tokens::Token Parsing::getToken() {
     tok.type = Tokens::OPERATOR;
     tok.value = file[i];
     tok.line = lineIndex;
+    return tok;
   }
   Exit(lineIndex, string("Illegal symbol ") + c);
   exit(1);
@@ -135,16 +135,22 @@ void Parsing::id(bool todecl) {
   } else if (!vars.count(currentToken.value)) {
     Exit(currentToken.line, "undeclared var " + currentToken.value);
   }
-  getToken();
+  currentToken = getToken();
 }
 
 void Parsing::program() {
   cout << "PROGRAM" << endl;
-  if (currentToken.value != "program") {
-    Exit(currentToken.line, "Expected program, got " + currentToken.value);
+  expectedType("program");
+  if (currentToken.value != "begin") {
+    decl_sec();
   }
-  currentToken = getToken();
-  decl_sec();
+  expectedType("begin");
+  stmt_sec();
+  expectedType("end");
+  if (currentToken.type != Tokens::END) {
+    Exit(currentToken.line,
+         "expected end of file, got extra " + currentToken.value);
+  }
 }
 
 void Parsing::assign() {
@@ -157,9 +163,7 @@ void Parsing::assign() {
 
 void Parsing::comp() {
   cout << "COMP" << endl;
-  if (currentToken.value != "(") {
-    Exit(currentToken.line, "Expected (, got " + currentToken.value);
-  }
+  expectedType("(");
   operand();
   if (currentToken.value != "=" && currentToken.value != "<>" &&
       currentToken.value != ">" && currentToken.value != "<") {
@@ -168,9 +172,7 @@ void Parsing::comp() {
   }
   currentToken = getToken();
   operand();
-  if (currentToken.value != ")") {
-    Exit(currentToken.line, "Expected ), got " + currentToken.value);
-  }
+  expectedType(")");
 }
 
 void Parsing::decl_sec() {
