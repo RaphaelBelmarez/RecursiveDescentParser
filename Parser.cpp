@@ -13,12 +13,8 @@ void Exit(int l, string err) {
 
 void Parsing::scanFile(string text) {
   file = text;
-  while (currentToken.value != "program" || currentToken.type != Tokens::END) {
-    currentToken = getToken();
-  }
-  if (currentToken.value == "program") {
-    program();
-  }
+  currentToken = getToken();
+  program();
   exit(0);
 };
 
@@ -34,9 +30,9 @@ Tokens::Token Parsing::getToken() {
   }
   index = i;
   if (i >= file.size()) {
-    currentToken.type = Tokens::END;
-    currentToken.value = "end";
-    currentToken.line = lineIndex;
+    tok.type = Tokens::END;
+    tok.value = "end";
+    tok.line = lineIndex;
     index = i;
     return tok;
   }
@@ -147,6 +143,7 @@ void Parsing::program() {
   expectedType("begin");
   stmt_sec();
   expectedType("end");
+  expectedType(";");
   if (currentToken.type != Tokens::END) {
     Exit(currentToken.line,
          "expected end of file, got extra " + currentToken.value);

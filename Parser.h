@@ -49,7 +49,7 @@ public:
   Tokens::Token currentToken;
   void expectedType(const string &type);
 
-  size_t index;
+  size_t index = 0;
   int lineIndex = 1;
 
   string line;
